@@ -79,4 +79,10 @@ export class AuthResolver {
     const userResponse = new UserSignUpResponse(newUser)
     return userResponse
   }
+
+  // checkToken(
+  //   @Arg('accessToken') accessToken: string
+  // ) :Promise<UserSignInResponse>  {
+  //
+  // }
 }
