@@ -5,5 +5,5 @@ export enum USER_TYPE {
   BUYER = 'buyer',
   MERCHANT = 'merchant',
 }
-export const USER_TYPES_LIST = Object.values(USER_TYPE)
 registerEnumType(USER_TYPE, { name: 'USER_TYPE' })
+export const USER_TYPES_LIST = Object.values(USER_TYPE)

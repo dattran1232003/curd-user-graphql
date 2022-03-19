@@ -1,16 +1,6 @@
-import { Schema, model } from 'mongoose'
-import { IUser } from 'src/api/users/interfaces'
+import { model, Schema } from 'mongoose'
 import { COLLECTION_NAME } from 'src/common/constants'
-import { BaseDocument } from 'src/common/interfaces'
-
-export interface IRefreshToken extends BaseDocument {
-  refreshToken: string
-  userId: string
-  expired: Date
-
-  /** using for populate */
-  user?: IUser
-}
+import { IRefreshToken } from '../interfaces'
 
 export const RefreshTokenSchema = new Schema<IRefreshToken>(
   {
@@ -23,6 +13,7 @@ export const RefreshTokenSchema = new Schema<IRefreshToken>(
     },
     expired: {
       type: Date,
+      default: Date.now,
       index: {
         expires: `30 days`,
       },
