@@ -21,6 +21,7 @@
   "homepage": "https://github.com/dattran1232003/curd-user-graphql#readme",
   "devDependencies": {
     "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.8",
     "@types/node": "^17.0.21",
     "eslint": "^8.11.0",
     "module-alias": "^2.2.2",
@@ -33,7 +34,6 @@
   },
   "dependencies": {
     "@types/mongodb": "^4.0.7",
-    "@types/mongoose": "^5.11.97",
     "apollo-server-core": "^3.6.4",
     "apollo-server-express": "^3.6.4",
     "argon2": "^0.28.5",
@@ -41,6 +41,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "graphql": "^15.3.0",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.7",
     "reflect-metadata": "^0.1.13",

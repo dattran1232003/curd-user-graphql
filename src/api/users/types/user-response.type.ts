@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from 'type-graphql'
 import { USER_TYPE } from '../constants'
-import { IUser } from '../interface'
+import { IUser } from '../interfaces'
 
 @ObjectType()
 export class UserResponse {

@@ -1,7 +1,7 @@
 import { Schema, Model, model } from 'mongoose'
 import { COLLECTION_NAME } from 'src/common/constants'
 import { USER_TYPES_LIST } from '../constants'
-import { IUser } from '../interface'
+import { IUser } from '../interfaces'
 
 export const UserSchema = new Schema<IUser, Model<IUser>>(
   {
