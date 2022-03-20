@@ -12,8 +12,9 @@ import { SignUpInput } from 'src/api/users/types/sign-up.input'
 import { ERROR_CODE, JWT_ERROR_CODE } from 'src/common/constants'
 import { checkToken, generateToken } from 'src/common/functions'
 import { ErrorResponse } from 'src/common/types'
-import { Arg, Mutation, Query } from 'type-graphql'
+import { Arg, Mutation, Query, Resolver } from 'type-graphql'
 
+@Resolver()
 export class AuthResolver {
   @Mutation(_ => UserSignInResponse, {
     nullable: true,

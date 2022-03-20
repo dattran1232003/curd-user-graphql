@@ -3,15 +3,14 @@ import {
   Context,
 } from 'apollo-server-core'
 import { ApolloServer } from 'apollo-server-express'
-import dotenv from 'dotenv'
 import express from 'express'
 import mongoose from 'mongoose'
 import 'reflect-metadata'
 import { buildSchema } from 'type-graphql'
 import { AuthResolver } from './api/auth/resolvers'
 import { UserResolver } from './api/users/resolvers'
-
-dotenv.config()
+import { jwtAuthChecker } from './common/middlewares'
+import { AppConfig } from './config'
 
 async function main() {
   const uri = process.env.MONGO_URI as string
@@ -26,10 +25,19 @@ async function main() {
     schema: await buildSchema({
       resolvers: [UserResolver, AuthResolver],
       validate: false,
+      authChecker: jwtAuthChecker,
     }),
     context: ({ req, res }): Context => ({ req, res }),
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
   })
+
+  // app.use(
+  //   '/graphql',
+  //   jwt({
+  //     secret: AppConfig.JWT_SECRET,
+  //     algorithms: [AppConfig.JWT_ALGORITHM],
+  //   })
+  // )
 
   await apolloServer.start().then(() => {
     console.log(`GraphQL server started`)
@@ -37,7 +45,7 @@ async function main() {
 
   apolloServer.applyMiddleware({ app, cors: false })
 
-  const PORT = process.env.PORT || 4000
+  const { PORT } = AppConfig
   app.listen(PORT, () => {
     console.log(`Express server is started on port ${PORT}`)
   })
