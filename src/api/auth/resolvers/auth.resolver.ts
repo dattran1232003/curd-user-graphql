@@ -79,7 +79,6 @@ export class AuthResolver {
     }
 
     password = await argon2.hash(password)
-
     const newUser = new User({
       email,
       username,

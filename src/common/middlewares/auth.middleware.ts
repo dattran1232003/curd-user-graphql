@@ -32,7 +32,6 @@ export const jwtAuthChecker: AuthChecker<{ req: Request }, USER_TYPE> = async (
 
     if (userTypes.length) {
       const { userType } = user
-      console.log({ userTypes, userType })
 
       if (!userTypes.includes(userType)) {
         throw ERROR_CODE.WRONG_ROLE

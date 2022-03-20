@@ -31,14 +31,6 @@ async function main() {
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
   })
 
-  // app.use(
-  //   '/graphql',
-  //   jwt({
-  //     secret: AppConfig.JWT_SECRET,
-  //     algorithms: [AppConfig.JWT_ALGORITHM],
-  //   })
-  // )
-
   await apolloServer.start().then(() => {
     console.log(`GraphQL server started`)
   })
