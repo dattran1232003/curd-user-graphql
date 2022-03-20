@@ -4,18 +4,19 @@ import { UserResponse } from './user-response.type'
 
 @ObjectType()
 export class UserSignUpResponse {
-  // code: number
-  // message: string
-  // success: boolean
-
   @Field(_ => UserResponse, { nullable: true })
   user?: UserResponse
 
-  // @Field(_ => [ErrorResponse], { nullable: true })
-  // errors?: ErrorResponse[]
+  @Field()
+  accessToken: string
 
-  constructor(user: IUser) {
+  @Field()
+  refreshToken: string
+
+  constructor(user: IUser, accessToken: string, refreshToken: string) {
     this.user = user && new UserResponse(user)
+    this.accessToken = accessToken || ''
+    this.refreshToken = refreshToken || ''
   }
 }
 

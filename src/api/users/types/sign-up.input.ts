@@ -7,7 +7,7 @@ export class SignUpInput {
   username: string
 
   @Field(_ => USER_TYPE)
-  userType: string
+  userType: USER_TYPE
 
   @Field()
   email: string

@@ -15,7 +15,7 @@ import { ErrorResponse } from 'src/common/types'
 import { Arg, Mutation, Query } from 'type-graphql'
 
 export class AuthResolver {
-  @Query(_ => UserSignInResponse, {
+  @Mutation(_ => UserSignInResponse, {
     nullable: true,
   })
   async signIn(
@@ -27,7 +27,7 @@ export class AuthResolver {
     })
 
     const isPasswordMatch = user
-      ? argon2.verify(user.password, password)
+      ? await argon2.verify(user.password, password)
       : false
 
     if (!user || !isPasswordMatch) {
@@ -88,7 +88,22 @@ export class AuthResolver {
 
     await newUser.save()
 
-    const userResponse = new UserSignUpResponse(newUser)
+    const [accessToken, refreshToken] = await Promise.all([
+      generateToken(newUser, false),
+      generateToken(newUser, true),
+    ])
+
+    const newRefreshToken = new RefreshToken({
+      refreshToken,
+      userId: newUser._id,
+    })
+
+    await newRefreshToken.save()
+    const userResponse = new UserSignUpResponse(
+      newUser,
+      accessToken,
+      refreshToken
+    )
     return userResponse
   }
 
@@ -100,7 +115,6 @@ export class AuthResolver {
   ): Promise<UserCheckTokenResponse> {
     try {
       const decoded = await checkToken(accessToken)
-      console.log({ decoded })
 
       const user = await User.findOne({
         $or: [
@@ -175,6 +189,8 @@ export class AuthResolver {
       refreshToken: newRefreshToken,
       userId: user._id,
     }).save()
+
+    RefreshToken.deleteOne({ _id: existingRefreshToken._id }).then()
 
     return new UserRefreshTokenResponse(user, newAccessToken, newRefreshToken)
   }
