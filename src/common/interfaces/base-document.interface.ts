@@ -1,6 +1,6 @@
 import { Document } from 'mongoose'
 
-export interface BaseDocument extends Document {
+export interface IBaseDocument extends Document {
   /* timestamp fields */
   createdAt: Date
   updatedAt: Date

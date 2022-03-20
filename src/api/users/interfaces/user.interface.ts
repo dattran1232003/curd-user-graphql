@@ -1,7 +1,7 @@
-import { BaseDocument } from 'src/common/interfaces'
+import { IBaseDocument } from 'src/common/interfaces'
 import { USER_TYPE } from '../constants'
 
-export interface IUser extends BaseDocument {
+export interface IUser extends IBaseDocument {
   email: string
   userType: USER_TYPE
   username: string
