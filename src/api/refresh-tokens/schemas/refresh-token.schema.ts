@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import { model, Schema } from 'mongoose'
 import { COLLECTION_NAME } from 'src/common/constants'
 import { IRefreshToken } from '../interfaces'
@@ -9,7 +10,8 @@ export const RefreshTokenSchema = new Schema<IRefreshToken>(
       unique: true,
     },
     userId: {
-      type: String,
+      type: ObjectId,
+      ref: COLLECTION_NAME.USER_MODEL,
     },
     expired: {
       type: Date,
