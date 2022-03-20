@@ -11,9 +11,9 @@ export const jwtAuthChecker: AuthChecker<{ req: Request }, USER_TYPE> = async (
   { root, args, context, info },
   userTypes = []
 ): Promise<boolean> => {
-  const accessToken = (context?.req?.headers?.authorization || '')
-    .split('Bearer ')[1]
-    .trim()
+  const accessToken =
+    (context?.req?.headers?.authorization || '').split('Bearer ')[1]?.trim() ||
+    ''
 
   if (!accessToken) {
     throw new AuthenticationError(ERROR_CODE.INVALID_TOKEN)

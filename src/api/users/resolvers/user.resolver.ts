@@ -1,9 +1,12 @@
-import { Query, Resolver } from 'type-graphql'
+import { CurrentUser } from 'src/common/decorators'
+import { Authorized, Query, Resolver } from 'type-graphql'
+import { IUser } from '../interfaces'
 
 @Resolver()
 export class UserResolver {
   @Query()
-  hello(): string {
-    return 'hello user'
+  @Authorized()
+  hello(@CurrentUser() user: IUser): string {
+    return `hello ${user.username}`
   }
 }
