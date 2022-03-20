@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { IUser } from 'src/api/users/interfaces'
+import { AppConfig } from 'src/config'
 import { JWT_ERROR_CODE } from '../constants'
 import { IJwtPayLoad } from '../interfaces'
 
@@ -10,14 +11,15 @@ export async function generateToken(
   return new Promise<string>((res, rej) => {
     jwt.sign(
       {
+        userId: user._id?.toString(),
         email: user.email,
         username: user.username,
         userType: user.userType,
       } as IJwtPayLoad,
-      process.env.JWT_SECRET as string,
+      AppConfig.JWT_SECRET,
       {
-        algorithm: 'HS256',
-        expiresIn: isRefreshToken ? '1h' : '30 days',
+        algorithm: AppConfig.JWT_ALGORITHM,
+        expiresIn: isRefreshToken ? '30d' : '1h',
       },
       (err, jwtToken) => {
         if (jwtToken) {
@@ -32,16 +34,12 @@ export async function generateToken(
 
 export async function checkToken(token: string): Promise<IJwtPayLoad> {
   return new Promise<IJwtPayLoad>((res, rej) => {
-    jwt.verify(
-      token,
-      process.env.JWT_SECRET as string,
-      (err, decoded): void => {
-        if (decoded) {
-          res(decoded as IJwtPayLoad)
-        } else if (err) {
-          rej(err.message as JWT_ERROR_CODE)
-        }
+    jwt.verify(token, AppConfig.JWT_SECRET, (err, decoded): void => {
+      if (decoded) {
+        res(decoded as IJwtPayLoad)
+      } else if (err) {
+        rej(err.message as JWT_ERROR_CODE)
       }
-    )
+    })
   })
 }

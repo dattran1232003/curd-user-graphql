@@ -17,7 +17,7 @@ export const RefreshTokenSchema = new Schema<IRefreshToken>(
       type: Date,
       default: Date.now,
       index: {
-        expires: `30 days`,
+        expires: `30d`,
       },
     },
   },
