@@ -53,8 +53,11 @@ export class AuthResolver {
     nullable: true,
   })
   async signUp(
-    @Arg('signUpInput') { username, email, userType, password }: SignUpInput
+    @Arg('signUpInput') signUpInput: SignUpInput
   ): Promise<UserSignUpResponse> {
+    const { username, email, userType } = signUpInput
+    let { password } = signUpInput
+
     const existingUser = await User.findOne({
       $or: [{ email }, { username }],
     })

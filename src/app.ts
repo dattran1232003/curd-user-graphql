@@ -24,7 +24,7 @@ async function main() {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UserResolver, AuthResolver],
-      validate: false,
+      validate: true,
       authChecker: jwtAuthChecker,
     }),
     context: ({ req, res }): Context => ({ req, res }),
