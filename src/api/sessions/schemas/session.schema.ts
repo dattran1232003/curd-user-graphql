@@ -2,17 +2,29 @@ import { ObjectId } from 'mongodb'
 import { model, Schema } from 'mongoose'
 import { COLLECTION_NAME } from 'src/common/constants'
 import { AppConfig } from 'src/config'
-import { IRefreshToken } from '../interfaces'
+import { ISession } from '../interfaces'
 
-export const RefreshTokenSchema = new Schema<IRefreshToken>(
+export const SessionSchema = new Schema<ISession>(
   {
-    refreshToken: {
+    accessToken: {
       type: String,
-      unique: true,
     },
     userId: {
       type: ObjectId,
+      required: true,
       ref: COLLECTION_NAME.USER_MODEL,
+    },
+    restricted: {
+      type: Boolean,
+      default: false,
+    },
+    isUserDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    lastOnline: {
+      type: Date,
+      default: Date.now,
     },
     createdAt: {
       type: Date,
@@ -26,20 +38,8 @@ export const RefreshTokenSchema = new Schema<IRefreshToken>(
     timestamps: true,
   }
 )
-export const RefreshToken = model(
-  COLLECTION_NAME.REFRESH_TOKEN_MODEL,
-  RefreshTokenSchema,
-  COLLECTION_NAME.REFRESH_TOKEN_MODEL
+export const Session = model(
+  COLLECTION_NAME.SESSION_MODEL,
+  SessionSchema,
+  COLLECTION_NAME.SESSION_MODEL
 )
-
-/**
- * Indexes:
- *  expired
- *  refreshToken
- *  userId
- */
-RefreshTokenSchema.index({
-  refreshToken: 1,
-  userId: 1,
-  createdAt: -1,
-})

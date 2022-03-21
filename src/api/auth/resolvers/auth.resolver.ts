@@ -1,6 +1,17 @@
 import { AuthenticationError, UserInputError } from 'apollo-server-core'
 import argon2 from 'argon2'
 import { RefreshToken } from 'src/api/refresh-tokens/schemas'
+import {
+  createSession,
+  getSessionByAccessToken,
+  getSessionByUserId,
+  invalidSessionById,
+  updateSessionAccessToken,
+  updateSessionLastOnline,
+} from 'src/api/sessions/collections'
+import { ISession } from 'src/api/sessions/interfaces'
+import { getUserById } from 'src/api/users/collections'
+import { IUser } from 'src/api/users/interfaces'
 import { User } from 'src/api/users/schemas'
 import {
   UserCheckTokenResponse,
@@ -8,11 +19,17 @@ import {
   UserSignInResponse,
   UserSignUpResponse,
 } from 'src/api/users/types'
+import { SignOutResponse } from 'src/api/users/types/sign-out-response.type'
 import { SignUpInput } from 'src/api/users/types/sign-up.input'
 import { ERROR_CODE, JWT_ERROR_CODE } from 'src/common/constants'
-import { checkToken, generateToken } from 'src/common/functions'
+import { CurrentUser } from 'src/common/decorators'
+import {
+  checkToken,
+  generateAccessToken,
+  generateRefreshToken,
+} from 'src/common/functions'
 import { ErrorResponse } from 'src/common/types'
-import { Arg, Mutation, Query, Resolver } from 'type-graphql'
+import { Arg, Authorized, Mutation, Query, Resolver } from 'type-graphql'
 
 @Resolver()
 export class AuthResolver {
@@ -35,9 +52,13 @@ export class AuthResolver {
       throw new AuthenticationError('Wrong email or password', { errors: [] })
     }
 
+    const session = await createSession({
+      userId: user._id,
+    } as ISession)
+
     const [accessToken, refreshToken] = await Promise.all([
-      generateToken(user, false),
-      generateToken(user, true),
+      generateAccessToken(session),
+      generateRefreshToken(session),
     ])
 
     const newRefreshToken = new RefreshToken({
@@ -45,6 +66,8 @@ export class AuthResolver {
       userId: user._id,
     })
     await newRefreshToken.save()
+    updateSessionAccessToken(session._id, accessToken).then()
+    updateSessionLastOnline(session._id, new Date()).then()
 
     return new UserSignInResponse(user, accessToken, refreshToken)
   }
@@ -53,10 +76,20 @@ export class AuthResolver {
     nullable: true,
   })
   async signUp(
-    @Arg('signUpInput') { username, email, userType, password }: SignUpInput
+    @Arg('signUpInput') signUpInput: SignUpInput
   ): Promise<UserSignUpResponse> {
+    const { username, email, userType } = signUpInput
+    let { password } = signUpInput
+
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
+      $or: [
+        {
+          email,
+        },
+        {
+          username,
+        },
+      ],
     })
 
     if (existingUser) {
@@ -88,9 +121,12 @@ export class AuthResolver {
 
     await newUser.save()
 
+    const session = await createSession({
+      userId: newUser._id,
+    } as ISession)
     const [accessToken, refreshToken] = await Promise.all([
-      generateToken(newUser, false),
-      generateToken(newUser, true),
+      generateAccessToken(session),
+      generateRefreshToken(session),
     ])
 
     const newRefreshToken = new RefreshToken({
@@ -99,6 +135,9 @@ export class AuthResolver {
     })
 
     await newRefreshToken.save()
+    updateSessionAccessToken(session._id, accessToken).then()
+    updateSessionLastOnline(session._id, new Date()).then()
+
     const userResponse = new UserSignUpResponse(
       newUser,
       accessToken,
@@ -115,29 +154,21 @@ export class AuthResolver {
   ): Promise<UserCheckTokenResponse> {
     try {
       const decoded = await checkToken(accessToken)
-
-      const user = await User.findOne({
-        $or: [
-          {
-            email: decoded.email,
-          },
-          {
-            username: decoded.username,
-          },
-        ],
-      })
+      const user = await getUserById(decoded.userId)
 
       if (!user) {
-        throw new AuthenticationError(JWT_ERROR_CODE.INVALID_TOKEN, {
-          errors: [],
-        })
+        throw JWT_ERROR_CODE.INVALID_TOKEN
       }
+
+      const session = await getSessionByAccessToken(accessToken)
+      if (!session) {
+        throw ERROR_CODE.SESSION_EXPIRED
+      }
+      updateSessionLastOnline(session._id, new Date()).then()
 
       return new UserCheckTokenResponse(user)
     } catch (e) {
-      const errorCode = e as JWT_ERROR_CODE
-
-      switch (errorCode) {
+      switch (e) {
         case JWT_ERROR_CODE.JWT_EXPIRED:
           throw new AuthenticationError(ERROR_CODE.TOKEN_EXPIRED, {
             errors: [],
@@ -147,11 +178,33 @@ export class AuthResolver {
             errors: [],
           })
         default:
-          throw new AuthenticationError(ERROR_CODE.INVALID_TOKEN, {
+          throw new AuthenticationError(e, {
             errors: [],
           })
       }
     }
+  }
+
+  @Mutation(_ => SignOutResponse)
+  @Authorized()
+  async signOut(
+    @CurrentUser() user: IUser,
+    @Arg('refreshToken', { nullable: true }) refreshTokenString?: string
+  ): Promise<SignOutResponse> {
+    if (refreshTokenString) {
+      RefreshToken.deleteOne({
+        refreshToken: refreshTokenString,
+      })
+    }
+
+    let session = await getSessionByUserId(user._id)
+    session = await invalidSessionById(session?._id)
+
+    if (!session) {
+      throw new AuthenticationError('Invalid session, please login again')
+    }
+
+    return new SignOutResponse(session)
   }
 
   @Mutation(_ => UserRefreshTokenResponse, {
@@ -180,9 +233,13 @@ export class AuthResolver {
       throw new AuthenticationError(ERROR_CODE.INVALID_REFRESH_TOKEN)
     }
 
+    const session = await createSession({
+      userId: user._id,
+    } as ISession)
+
     const [newAccessToken, newRefreshToken] = await Promise.all([
-      generateToken(user, false),
-      generateToken(user, true),
+      generateAccessToken(session),
+      generateRefreshToken(session),
     ])
 
     await new RefreshToken({
@@ -191,6 +248,7 @@ export class AuthResolver {
     }).save()
 
     RefreshToken.deleteOne({ _id: existingRefreshToken._id }).then()
+    updateSessionAccessToken(session._id, newAccessToken).then()
 
     return new UserRefreshTokenResponse(user, newAccessToken, newRefreshToken)
   }

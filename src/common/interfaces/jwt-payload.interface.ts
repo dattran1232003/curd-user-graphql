@@ -1,6 +1,5 @@
 export interface IJwtPayLoad {
+  email: any
+  sessionId: string
   userId: string
-  email: string
-  username: string
-  userType: string
 }
