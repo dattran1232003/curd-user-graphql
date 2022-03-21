@@ -49,8 +49,6 @@ export class StatisticsUserResolver {
     const startDate = new Date(input.startDate)
     const endDate = new Date(input.endDate)
 
-    console.log({ startDate, endDate })
-
     const [listUserIds, countMongo] = await Promise.all([
       getUserIdsForStatisticsPageLoadQuery<{ _id: ObjectId }>(
         skip,
