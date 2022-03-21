@@ -22,6 +22,10 @@ export const SessionSchema = new Schema<ISession>(
       type: Boolean,
       default: false,
     },
+    lastOnline: {
+      type: Date,
+      default: Date.now,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

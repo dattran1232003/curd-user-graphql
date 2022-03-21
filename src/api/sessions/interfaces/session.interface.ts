@@ -6,4 +6,8 @@ export interface ISession extends IBaseDocument {
   accessToken: string
   restricted: boolean
   isUserDeleted: boolean
+  /**
+   * @description update when user sign-in/sign-up/check-token
+   */
+  lastOnline: Date
 }

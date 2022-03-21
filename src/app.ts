@@ -8,7 +8,7 @@ import mongoose from 'mongoose'
 import 'reflect-metadata'
 import { buildSchema } from 'type-graphql'
 import { AuthResolver } from './api/auth/resolvers'
-import { UserResolver } from './api/users/resolvers'
+import { StatisticsUserResolver, UserResolver } from './api/users/resolvers'
 import { jwtAuthChecker } from './common/middlewares'
 import { AppConfig } from './config'
 
@@ -23,7 +23,7 @@ async function main() {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, AuthResolver],
+      resolvers: [UserResolver, AuthResolver, StatisticsUserResolver],
       validate: true,
       authChecker: jwtAuthChecker,
     }),
