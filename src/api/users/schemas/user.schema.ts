@@ -25,6 +25,12 @@ export const UserSchema = new Schema<IUser, Model<IUser>>(
       required: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 )
-export const User = model(COLLECTION_NAME.USER_MODEL, UserSchema)
+export const User = model(
+  COLLECTION_NAME.USER_MODEL,
+  UserSchema,
+  COLLECTION_NAME.USER_MODEL
+)

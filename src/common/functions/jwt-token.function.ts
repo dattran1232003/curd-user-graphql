@@ -1,25 +1,30 @@
 import jwt from 'jsonwebtoken'
-import { IUser } from 'src/api/users/interfaces'
+import { ISession } from 'src/api/sessions/interfaces'
 import { AppConfig } from 'src/config'
 import { JWT_ERROR_CODE } from '../constants'
 import { IJwtPayLoad } from '../interfaces'
 
+export const generateAccessToken = async (session: ISession) =>
+  generateToken(session, false)
+export const generateRefreshToken = async (session: ISession) =>
+  generateToken(session, true)
+
 export async function generateToken(
-  user: IUser,
+  session: ISession,
   isRefreshToken: boolean = false
 ): Promise<string> {
   return new Promise<string>((res, rej) => {
     jwt.sign(
       {
-        userId: user._id?.toString(),
-        email: user.email,
-        username: user.username,
-        userType: user.userType,
+        sessionId: session._id?.toString(),
+        userId: session.userId?.toString(),
       } as IJwtPayLoad,
       AppConfig.JWT_SECRET,
       {
         algorithm: AppConfig.JWT_ALGORITHM,
-        expiresIn: isRefreshToken ? '30d' : '1h',
+        expiresIn: isRefreshToken
+          ? AppConfig.JWT_REFRESH_TOKEN_EXPIRE_AFTER
+          : AppConfig.JWT_ACCESS_TOKEN_EXPIRE_AFTER,
       },
       (err, jwtToken) => {
         if (jwtToken) {

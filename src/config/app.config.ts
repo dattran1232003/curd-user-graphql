@@ -9,4 +9,7 @@ export class AppConfig {
   static readonly JWT_SECRET: string = process.env.JWT_SECRET?.trim() as string
   static readonly JWT_ALGORITHM: Algorithm =
     (process.env.JWT_ALGORITHM?.trim() as Algorithm) || 'HS256'
+
+  static readonly JWT_REFRESH_TOKEN_EXPIRE_AFTER = '30d'
+  static readonly JWT_ACCESS_TOKEN_EXPIRE_AFTER = '1h'
 }
