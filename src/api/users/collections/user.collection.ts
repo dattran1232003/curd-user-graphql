@@ -26,7 +26,7 @@ export async function getNewUsersPageLoadQuery<T extends IUser | ICountMongo>(
   skip: number = 0,
   limit: number = 10,
   isCount?: boolean
-): Promise<Array<T>> {
+): Promise<T[]> {
   return User.aggregate<T>([
     {
       $match: {

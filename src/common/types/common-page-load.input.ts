@@ -16,6 +16,15 @@ export class CommonPageLoadInput {
   @IsNumber()
   @Field({ nullable: true })
   limit: number
+
+  constructor(input: CommonPageLoadInput) {
+    if (!input) {
+      return
+    }
+    const { skip, limit } = input
+    this.skip = skip ?? 0
+    this.limit = limit ?? 10
+  }
 }
 
 export function CommonPageLoadResponse<T>(itemType: Function) {

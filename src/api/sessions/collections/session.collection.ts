@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb'
+import { ICountMongo } from 'src/common/interfaces'
 import { ISession } from '../interfaces'
 import { Session } from '../schemas'
 
@@ -39,6 +40,60 @@ export async function getSessionByAccessToken(
     accessToken,
     restricted: false,
   })
+}
+
+export async function getUserIdsForStatisticsPageLoadQuery<
+  T extends { _id: ObjectId } | ICountMongo
+>(
+  skip: number = 0,
+  limit: number = 10,
+  isCount: boolean = false,
+  startDate: Date,
+  endDate: Date
+): Promise<T[]> {
+  return Session.aggregate<T>([
+    {
+      $match: {
+        restricted: false,
+        $and: [
+          {
+            lastOnline: {
+              $gte: startDate,
+            },
+          },
+          {
+            lastOnline: {
+              $lte: endDate,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $group: {
+        _id: '$userId',
+      },
+    },
+    ...(isCount
+      ? [
+          {
+            $count: 'count',
+          },
+        ]
+      : [
+          {
+            $sort: {
+              createdAt: -1 as -1,
+            },
+          },
+          {
+            $skip: skip,
+          },
+          {
+            $limit: limit,
+          },
+        ]),
+  ])
 }
 
 export async function invalidSessionById(

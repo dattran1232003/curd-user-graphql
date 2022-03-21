@@ -67,6 +67,7 @@ export class AuthResolver {
     })
     await newRefreshToken.save()
     updateSessionAccessToken(session._id, accessToken).then()
+    updateSessionLastOnline(session._id, new Date()).then()
 
     return new UserSignInResponse(user, accessToken, refreshToken)
   }
@@ -135,6 +136,7 @@ export class AuthResolver {
 
     await newRefreshToken.save()
     updateSessionAccessToken(session._id, accessToken).then()
+    updateSessionLastOnline(session._id, new Date()).then()
 
     const userResponse = new UserSignUpResponse(
       newUser,
