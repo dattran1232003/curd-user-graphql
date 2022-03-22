@@ -102,8 +102,8 @@ export class AuthResolver {
 
         if (email === existingUser.email) {
           errors.push({
-            fieldName: 'username',
-            message: 'Username already taken, please choose another one',
+            fieldName: 'email',
+            message: 'Email already taken, please choose another one',
           })
         }
       }
