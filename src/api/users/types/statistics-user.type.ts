@@ -29,6 +29,6 @@ export class StatisticsUserInput extends CommonPageLoadInput {
 }
 
 @ObjectType()
-export class StatisticsUsersPageLoadResponse extends CommonPageLoadResponse<UserResponse>(
+export class StatisticsUsersPageLoadResponse extends CommonPageLoadResponse(
   UserResponse
 ) {}

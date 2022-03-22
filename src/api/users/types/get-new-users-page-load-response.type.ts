@@ -3,6 +3,6 @@ import { ObjectType } from 'type-graphql'
 import { UserResponse } from './user-response.type'
 
 @ObjectType()
-export class GetNewUsersPageLoadResponse extends CommonPageLoadResponse<UserResponse>(
+export class GetNewUsersPageLoadResponse extends CommonPageLoadResponse(
   UserResponse
 ) {}

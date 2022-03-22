@@ -1,7 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { model, Schema } from 'mongoose'
 import { COLLECTION_NAME } from 'src/common/constants'
-import { AppConfig } from 'src/config'
 import { ISession } from '../interfaces'
 
 export const SessionSchema = new Schema<ISession>(
@@ -25,13 +24,6 @@ export const SessionSchema = new Schema<ISession>(
     lastOnline: {
       type: Date,
       default: Date.now,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      index: {
-        expires: `${AppConfig.JWT_REFRESH_TOKEN_EXPIRE_AFTER}`,
-      },
     },
   },
   {

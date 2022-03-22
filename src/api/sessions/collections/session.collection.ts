@@ -54,7 +54,6 @@ export async function getUserIdsForStatisticsPageLoadQuery<
   return Session.aggregate<T>([
     {
       $match: {
-        restricted: false,
         $and: [
           {
             lastOnline: {

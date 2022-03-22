@@ -27,7 +27,7 @@ export class CommonPageLoadInput {
   }
 }
 
-export function CommonPageLoadResponse<T>(itemType: Function) {
+export function CommonPageLoadResponse<T>(itemType: { new (...p: any[]): T }) {
   @ObjectType()
   class CommonPageLoadResponseClass {
     @Field(_ => [itemType])
